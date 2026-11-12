@@ -1,0 +1,106 @@
+﻿@model Website.Models.Promotion
+@{
+    ViewData["Title"] = "Create Promotion";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+                    <h2 class="text-dark mb-0"><i class="fas fa-plus-circle"></i> Create Promotion</h2>
+                </div>
+                <div class="card-body">
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["Error"]</div>
+                    }
+
+                    <form asp-action="CreatePromotion" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Title" class="form-label">Title</label>
+                            <input asp-for="Title" class="form-control" required />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="StartDate" class="form-label">Start Date</label>
+                                    <input asp-for="StartDate" type="date" class="form-control" required />
+                                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="EndDate" class="form-label">End Date</label>
+                                    <input asp-for="EndDate" type="date" class="form-control" required />
+                                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="DiscountPercentage" class="form-label">Discount (%)</label>
+                                    <input asp-for="DiscountPercentage" type="number" step="0.01" class="form-control" />
+                                    <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="ContentId" class="form-label">Featured Content</label>
+                                    <select asp-for="ContentId" class="form-select">
+                                        <option value="">All Content</option>
+                                        @if (ViewBag.Contents != null)
+                                        {
+                                            @foreach (var content in ViewBag.Contents)
+                                            {
+                                                <option value="@content.Id">@content.Title</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="ContentId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="image" class="form-label">Promotion Image</label>
+                            <input type="file" name="image" class="form-control" accept="image/*" />
+                            <small class="text-muted">Upload a promotional image (JPG, PNG)</small>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" />
+                                <label asp-for="IsActive" class="form-check-label">Active (visible to users)</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100">Create Promotion</button>
+                        <a asp-action="Promotions" class="btn btn-secondary w-100 mt-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+}

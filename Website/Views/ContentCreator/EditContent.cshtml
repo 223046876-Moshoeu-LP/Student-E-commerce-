@@ -1,0 +1,111 @@
+﻿@model Website.Models.Content
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Edit Content";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header" style="background: linear-gradient(135deg, #008080, #006666);">
+                    <h2 class="text-white mb-0"><i class="fas fa-edit"></i> Edit Content</h2>
+                    <p class="text-white-50 mb-0">Update your content</p>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditContent" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Title" class="form-label">Title</label>
+                                    <input asp-for="Title" class="form-control" />
+                                    <span asp-validation-for="Title" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Description" class="form-label">Description</label>
+                                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Current Thumbnail</label>
+                                    <img src="@(Model.ThumbnailUrl ?? "/images/default-course.jpg")" class="img-fluid rounded mb-2" style="max-height: 120px;">
+                                    <label asp-for="ThumbnailUrl" class="form-label">Change Thumbnail</label>
+                                    <input type="file" name="thumbnail" class="form-control" accept="image/*" />
+                                    <small class="text-muted">Leave empty to keep current image</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Category" class="form-label">Category</label>
+                                    <select asp-for="Category" class="form-select">
+                                        <option value="Course">Course</option>
+                                        <option value="Podcast">Podcast</option>
+                                        <option value="Article">Article</option>
+                                        <option value="Video Tutorial">Video Tutorial</option>
+                                    </select>
+                                    <span asp-validation-for="Category" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Price" class="form-label">Price ($)</label>
+                                    <input asp-for="Price" class="form-control" />
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label asp-for="ContentUrl" class="form-label">Content URL</label>
+                                    <input asp-for="ContentUrl" class="form-control" />
+                                    <span asp-validation-for="ContentUrl" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Duration" class="form-label">Duration (minutes)</label>
+                                    <input asp-for="Duration" class="form-control" />
+                                    <span asp-validation-for="Duration" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsPublished" class="form-check-input" />
+                                <label asp-for="IsPublished" class="form-check-label">Published (visible to learners)</label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a asp-action="MyContent" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+}

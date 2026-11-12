@@ -1,0 +1,10 @@
+﻿@{
+    ViewData["Title"] = "Watch Video";
+}
+<div class="container mt-5 text-center">
+    <h2>Watch: @ViewBag.Content?.Title</h2>
+    <div class="ratio ratio-16x9 mt-4">
+        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video" allowfullscreen></iframe>
+    </div>
+    <a asp-action="ContentDetails" asp-route-id="@ViewBag.Content?.Id" class="btn btn-primary mt-3">Back to Details</a>
+</div>

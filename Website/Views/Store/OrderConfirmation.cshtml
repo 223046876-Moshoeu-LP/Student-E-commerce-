@@ -1,0 +1,118 @@
+﻿@model Website.Models.Order
+@{
+    ViewData["Title"] = "Order Confirmation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white text-center">
+                    <i class="fas fa-check-circle fa-4x mb-2"></i>
+                    <h2 class="mb-0">Thank You for Your Purchase!</h2>
+                    <p class="mb-0">Your order has been completed successfully.</p>
+                </div>
+                <div class="card-body">
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle"></i> @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Order Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-info-circle"></i> Order Details</h5>
+                                    <hr />
+                                    <p><strong>Order Number:</strong> @(Model?.OrderNumber ?? "N/A")</p>
+                                    <p><strong>Order Date:</strong> @(Model?.OrderDate.ToString("MMMM dd, yyyy HH:mm") ?? DateTime.Now.ToString("MMMM dd, yyyy HH:mm"))</p>
+                                    <p><strong>Order Status:</strong> <span class="badge bg-success">@(Model?.Status ?? "Completed")</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-credit-card"></i> Payment Summary</h5>
+                                    <hr />
+                                    @{
+                                        var orderItemsList = ViewBag.OrderItems as List<Website.Models.OrderItem>;
+                                        var subtotal = orderItemsList != null ? orderItemsList.Sum(i => i.Price * i.Quantity) : 0;
+                                    }
+                                    <p><strong>Subtotal:</strong> $@subtotal.ToString("F2")</p>
+                                    <p><strong>Total Paid:</strong> <strong class="text-success fs-4">$@(Model?.TotalAmount.ToString("F2") ?? "0.00")</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <h5><i class="fas fa-shopping-cart"></i> Order Items</h5>
+                    <hr />
+
+                    @{
+                        var orderItems = ViewBag.OrderItems as List<Website.Models.OrderItem>;
+                    }
+
+                    @if (orderItems != null && orderItems.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Price</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in orderItems)
+                                    {
+                                        <tr>
+                                            <td>@item.ContentTitle</td>
+                                            <td>@item.Quantity</td>
+                                            <td>$@item.Price.ToString("F2")</td>
+                                            <td class="text-success fw-bold">$@((item.Price * item.Quantity).ToString("F2"))</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                                        <td class="text-success fw-bold fs-5">$@(Model?.TotalAmount.ToString("F2") ?? "0.00")</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-triangle"></i> No order items found.
+                        </div>
+                    }
+
+                    <div class="text-center mt-4">
+                        <a asp-controller="Store" asp-action="Index" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shopping-cart"></i> Continue Shopping
+                        </a>
+                        <a asp-controller="Store" asp-action="MyPurchases" class="btn btn-success btn-lg ms-2">
+                            <i class="fas fa-download"></i> My Purchases
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+}

@@ -1,0 +1,229 @@
+﻿@model List<Website.Models.Content>
+@{
+    ViewData["Title"] = "Analytics";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-info text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0">Content Analytics</h2>
+                    <p class="mb-0">Track your content performance</p>
+                </div>
+                <div>
+                    <img src="~/Images/DefaultPic.png" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 2px solid white;">
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-book fa-2x"></i>
+                            <h3 class="mt-2">@ViewBag.TotalContent</h3>
+                            <p>Total Content</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                            <h3 class="mt-2">@ViewBag.PublishedContent</h3>
+                            <p>Published</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body text-center">
+                            <i class="fas fa-pencil fa-2x"></i>
+                            <h3 class="mt-2">@(ViewBag.TotalContent - ViewBag.PublishedContent)</h3>
+                            <p>Drafts</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-dollar-sign fa-2x"></i>
+                            <h3 class="mt-2">$@((ViewBag.TotalValue ?? 0).ToString("F2"))</h3>
+                            <p>Total Value</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shopping-cart fa-2x"></i>
+                            <h3 class="mt-2">@ViewBag.TotalSales</h3>
+                            <p>Total Sales (Units)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                            <h3 class="mt-2">$@((ViewBag.TotalRevenue ?? 0).ToString("F2"))</h3>
+                            <p>Total Revenue</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Selling Content -->
+            @if (ViewBag.BestSelling != null)
+            {
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card bg-warning">
+                            <div class="card-body text-center">
+                                <i class="fas fa-trophy fa-3x mb-2"></i>
+                                <h4>Best Selling Content</h4>
+                                <h3 class="text-dark">@ViewBag.BestSelling.Title</h3>
+                                <p class="mb-0">Price: $@ViewBag.BestSelling.Price.ToString("F2") | Category: @ViewBag.BestSelling.Category</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (Model != null && Model.Count > 0)
+            {
+                <!-- Category Breakdown -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">Content by Category</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @{
+                                        var categories = Model.GroupBy(c => c.Category).Select(g => new { Category = g.Key, Count = g.Count() });
+                                    }
+                                    @foreach (var cat in categories)
+                                    {
+                                        var percentage = Model.Count > 0 ? (double)cat.Count / Model.Count * 100 : 0;
+                                        <div class="col-md-4 mb-3">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="badge bg-primary">@cat.Category</span>
+                                                <span>@cat.Count items (@percentage.ToString("0")%)</span>
+                                            </div>
+                                            <div class="progress mt-1">
+                                                <div class="progress-bar bg-primary" style="width: @percentage%"></div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content List -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">All Content Items</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>Category</th>
+                                                <th>Price</th>
+                                                <th>Status</th>
+                                                <th>Created Date</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td>@item.Title</td>
+                                                    <td><span class="badge bg-primary">@item.Category</span></td>
+                                                    <td class="text-success">$@item.Price.ToString("F2")</td>
+                                                    <td>
+                                                        @if (item.IsPublished)
+                                                        {
+                                                            <span class="badge bg-success">Published</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-secondary">Draft</span>
+                                                        }
+                                                    </td>
+                                                    <td>@item.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                                    <td>
+                                                        <a asp-action="EditContent" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- No Content Message -->
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-line fa-5x text-muted mb-3"></i>
+                    <h4>No analytics data yet</h4>
+                    <p class="text-muted">Create and publish content to see your analytics.</p>
+                    <a asp-action="CreateContent" class="btn btn-primary btn-lg mt-3">
+                        <i class="fas fa-plus-circle"></i> Create Your First Content
+                    </a>
+                </div>
+            }
+        </div>
+        <div class="card-footer">
+            <a asp-action="Dashboard" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <a asp-action="MyContent" class="btn btn-primary">
+                <i class="fas fa-list"></i> Manage Content
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+}

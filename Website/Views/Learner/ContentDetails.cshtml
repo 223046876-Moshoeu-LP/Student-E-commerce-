@@ -1,0 +1,84 @@
+﻿@model Website.Models.Content
+@{
+    ViewData["Title"] = Model?.Title ?? "Content Details";
+}
+
+<div class="container mt-4">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <!-- FIXED: Back to Store Button at the top -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <a asp-controller="Store" asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Store
+            </a>
+            <a asp-controller="Content" asp-action="Browse" class="btn btn-outline-primary ms-2">
+                <i class="fas fa-search"></i> Browse All Content
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <img src="@(Model?.ThumbnailUrl ?? "https://placehold.co/800x400/008080/white?text=" + Model?.Title)"
+                     class="card-img-top" alt="@Model?.Title" style="height: 300px; object-fit: cover;">
+                <div class="card-body">
+                    <h2>@Model?.Title</h2>
+                    <div class="mb-3">
+                        <span class="badge bg-primary">@Model?.Category</span>
+                        <span class="badge bg-info">@Model?.Duration minutes</span>
+                    </div>
+                    <p>@Model?.Description</p>
+                    <h4>What you'll get:</h4>
+                    <ul>
+                        <li>Full access to @Model?.Title</li>
+                        <li>Lifetime access</li>
+                        <li>Downloadable resources</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-body text-center">
+                    <h3 class="text-success">
+                        @if (Model?.Price > 0)
+                        {
+                            <text>$@Model?.Price.ToString("0.00")</text>
+                        }
+                        else
+                        {
+                            <text>Free</text>
+                        }
+                    </h3>
+
+                    <!-- Add to Cart Form -->
+                    <form asp-controller="Store" asp-action="AddToCart" asp-route-id="@Model?.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-2">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" name="quantity" value="1" min="1" max="99" class="form-control text-center" />
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </form>
+
+                    <!-- FIXED: Back to Store Button with correct controller -->
+                    <a asp-controller="Store" asp-action="Index" class="btn btn-secondary w-100">
+                        <i class="fas fa-arrow-left"></i> Back to Store
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+}

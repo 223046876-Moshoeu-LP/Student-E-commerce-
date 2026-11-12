@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Listen to Podcast";
+}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h2>Now Playing: @ViewBag.Content?.Title</h2>
+        </div>
+        <div class="card-body text-center">
+            <audio controls class="w-100">
+                <source src="#" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <a asp-action="ContentDetails" asp-route-id="@ViewBag.Content?.Id" class="btn btn-primary mt-3">Back to Details</a>
+        </div>
+    </div>
+</div>

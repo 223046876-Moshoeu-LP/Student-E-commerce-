@@ -1,0 +1,162 @@
+﻿@model Website.Models.Content
+@{
+    ViewData["Title"] = "Create Content";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h2><i class="fas fa-plus-circle"></i> Create New Content</h2>
+                    <p>Share your knowledge with learners</p>
+                </div>
+                <div class="card-body">
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["Error"]</div>
+                    }
+
+                    <form asp-action="CreateContent" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Title" class="form-label">Title *</label>
+                            <input asp-for="Title" class="form-control" required />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label">Description *</label>
+                            <textarea asp-for="Description" class="form-control" rows="5" required></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Category" class="form-label">Category *</label>
+                                    <select asp-for="Category" class="form-select" required id="CategorySelect">
+                                        <option value="">Select Category</option>
+                                        <option value="Course">Course</option>
+                                        <option value="Podcast">Podcast</option>
+                                        <option value="Article">Article</option>
+                                        <option value="Video">Video</option>
+                                        <option value="E-book">E-book</option>
+                                        <option value="Template">Template</option>
+                                        <option value="Workshop">Workshop</option>
+                                    </select>
+                                    <span asp-validation-for="Category" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Price" class="form-label">Price ($)</label>
+                                    <input asp-for="Price" type="number" step="0.01" class="form-control" value="0" />
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Duration" class="form-label">Duration (minutes)</label>
+                                    <input asp-for="Duration" type="number" class="form-control" value="0" />
+                                    <span asp-validation-for="Duration" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Thumbnail Image</label>
+                                    <input type="file" name="thumbnail" class="form-control" accept="image/*" />
+                                    <small class="text-muted">Upload a thumbnail (JPG, PNG)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3" id="contentFileDiv">
+                            <label class="form-label" id="contentFileLabel">Content File</label>
+                            <input type="file" name="contentFile" class="form-control" id="contentFileInput" />
+                            <small class="text-muted" id="contentFileHint">Upload video, audio, PDF, or document file</small>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsPublished" class="form-check-input" />
+                                <label asp-for="IsPublished" class="form-check-label">Publish immediately (visible to learners)</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-cloud-upload-alt"></i> Create Content
+                        </button>
+                        <a asp-action="Dashboard" class="btn btn-secondary w-100 mt-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Update file input label based on category
+    document.getElementById('CategorySelect').addEventListener('change', function() {
+        var category = this.value;
+        var label = document.getElementById('contentFileLabel');
+        var hint = document.getElementById('contentFileHint');
+        var input = document.getElementById('contentFileInput');
+
+        if (category === 'Video') {
+            label.innerHTML = 'Video File *';
+            hint.innerHTML = 'Upload video file (MP4, AVI, MOV)';
+            input.required = true;
+        } else if (category === 'Podcast') {
+            label.innerHTML = 'Audio File *';
+            hint.innerHTML = 'Upload audio file (MP3, WAV)';
+            input.required = true;
+        } else if (category === 'E-book') {
+            label.innerHTML = 'PDF File *';
+            hint.innerHTML = 'Upload PDF file';
+            input.required = true;
+        } else if (category === 'Template') {
+            label.innerHTML = 'Template File *';
+            hint.innerHTML = 'Upload DOCX, XLSX, or PDF file';
+            input.required = true;
+        } else if (category === 'Course') {
+            label.innerHTML = 'Course Content';
+            hint.innerHTML = 'Upload video or document (optional)';
+            input.required = false;
+        } else if (category === 'Article') {
+            label.innerHTML = 'Article Content';
+            hint.innerHTML = 'Write in description above, or upload document';
+            input.required = false;
+        } else {
+            label.innerHTML = 'Content File';
+            hint.innerHTML = 'Upload file (optional)';
+            input.required = false;
+        }
+    });
+</script>
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        var fileInput = document.querySelector('input[name="contentFile"]');
+        if (fileInput.files.length > 0) {
+            var fileSize = fileInput.files[0].size;
+            var maxSize = 100 * 1024 * 1024; // 100MB
+            if (fileSize > maxSize) {
+                e.preventDefault();
+                alert('File size exceeds 100MB limit. Please choose a smaller file.');
+            }
+        }
+    });
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+}

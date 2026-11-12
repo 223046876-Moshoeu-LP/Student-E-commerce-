@@ -1,0 +1,193 @@
+﻿@model List<Website.Models.Content>
+@{
+    ViewData["Title"] = "Browse Content";
+}
+
+<div class="container mt-4">
+    <!-- Hero Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card text-white" style="background: linear-gradient(135deg, #008080, #006666);">
+                <div class="card-body text-center py-5">
+                    <h1 class="display-4">Browse Our Content</h1>
+                    <p class="lead">Discover amazing courses, podcasts, and resources</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search content..." id="searchInput">
+                                <button class="btn btn-gold" onclick="searchContent()">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">All Categories</option>
+                                <option value="Programming">Programming</option>
+                                <option value="Design">Design</option>
+                                <option value="Business">Business</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Data Science">Data Science</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="sortBy">
+                                <option value="default">Sort by</option>
+                                <option value="price_asc">Price: Low to High</option>
+                                <option value="price_desc">Price: High to Low</option>
+                                <option value="name_asc">Name: A to Z</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="row" id="contentGrid">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-3 mb-4 content-card" data-category="@item.Category" data-price="@item.Price" data-name="@item.Title">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@(item.ThumbnailUrl ?? "https://placehold.co/300x200/008080/white?text=" + item.Title)"
+                             class="card-img-top" alt="@item.Title" style="height: 160px; object-fit: cover;">
+                        <div class="card-body">
+                            <h6 class="card-title">@item.Title</h6>
+                            <p class="card-text text-muted small">@(item.Description?.Length > 80 ? item.Description.Substring(0, 80) + "..." : item.Description)</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="text-success fw-bold">$@item.Price.ToString("0.00")</span>
+                                <a asp-action="ContentDetails" asp-route-id="@item.Id" class="btn btn-sm btn-gold">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-md-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle"></i> No content available yet. Check back soon!
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function searchContent() {
+        var searchTerm = document.getElementById("searchInput").value.toLowerCase();
+        var category = document.getElementById("categoryFilter").value;
+        var cards = document.querySelectorAll(".content-card");
+        var found = false;
+
+        cards.forEach(function(card) {
+            var title = card.querySelector(".card-title")?.innerText.toLowerCase() || '';
+            var cardCategory = card.getAttribute('data-category') || '';
+
+            var matchesSearch = title.includes(searchTerm);
+            var matchesCategory = category === "" || cardCategory === category;
+
+            if (matchesSearch && matchesCategory) {
+                card.style.display = "";
+                found = true;
+            } else {
+                card.style.display = "none";
+            }
+        });
+
+        if (!found && searchTerm !== "") {
+            alert("No content found matching '" + searchTerm + "'");
+        }
+    }
+
+    function resetFilters() {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("categoryFilter").value = "";
+        document.getElementById("sortBy").value = "default";
+
+        var cards = document.querySelectorAll(".content-card");
+        cards.forEach(function(card) {
+            card.style.display = "";
+        });
+    }
+
+    // Sort functionality
+    document.getElementById('sortBy').addEventListener('change', function() {
+        var sortValue = this.value;
+        var grid = document.getElementById('contentGrid');
+        var cards = Array.from(document.querySelectorAll('.content-card'));
+
+        if (sortValue === 'price_asc') {
+            cards.sort((a, b) => parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price')));
+        } else if (sortValue === 'price_desc') {
+            cards.sort((a, b) => parseFloat(b.getAttribute('data-price')) - parseFloat(a.getAttribute('data-price')));
+        } else if (sortValue === 'name_asc') {
+            cards.sort((a, b) => a.getAttribute('data-name').localeCompare(b.getAttribute('data-name')));
+        } else {
+            return;
+        }
+
+        cards.forEach(card => grid.appendChild(card));
+    });
+
+    // Real-time search
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        searchContent();
+    });
+
+    document.getElementById('categoryFilter').addEventListener('change', function() {
+        searchContent();
+    });
+</script>
+
+<style>
+    .btn-gold {
+        background: linear-gradient(135deg, #FFD700, #DAA520);
+        border: none;
+        color: #006666;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(218,165,32,0.4);
+            color: #006666;
+        }
+
+    .content-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+    .card-img-top {
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+</style>

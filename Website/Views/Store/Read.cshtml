@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Read Article";
+}
+<div class="container mt-4">
+    <h2>@ViewBag.Content?.Title</h2>
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <p>This is a sample article content. In a real application, this would contain the full article text.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+        </div>
+    </div>
+    <a asp-action="ContentDetails" asp-route-id="@ViewBag.Content?.Id" class="btn btn-primary mt-3">Back to Details</a>
+</div>

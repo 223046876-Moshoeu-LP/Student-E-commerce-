@@ -1,0 +1,99 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Create Account";
+    var role = Request.Query["role"].ToString();
+    if (string.IsNullOrEmpty(role)) role = "User";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header text-white text-center" style="background: linear-gradient(135deg, #008080, #006666);">
+                    <h2>@(role == "Admin" ? "Admin Registration" : role == "Content_Creator" ? "Content Creator Registration" : "Learner Registration")</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="Role" value="@role" />
+
+                        @if (role == "Admin")
+                        {
+                            <input type="hidden" name="AdminSecretCode" id="AdminSecretCode" />
+                        }
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <!-- First Name Field -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Input.FirstName" class="form-label">First Name</label>
+                            <input asp-for="Input.FirstName" class="form-control" required />
+                            <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                        </div>
+
+                        <!-- Last Name Field -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Input.LastName" class="form-label">Last Name</label>
+                            <input asp-for="Input.LastName" class="form-control" required />
+                            <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Input.Email" class="form-label">Email</label>
+                            <input asp-for="Input.Email" class="form-control" required />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Input.Password" class="form-label">Password</label>
+                            <input asp-for="Input.Password" type="password" class="form-control" required />
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Input.ConfirmPassword" class="form-label">Confirm Password</label>
+                            <input asp-for="Input.ConfirmPassword" type="password" class="form-control" required />
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        @if (role == "Admin")
+                        {
+                            <div class="form-group mb-3">
+                                <label class="form-label">Admin Secret Code</label>
+                                <input type="password" id="AdminCodeInput" class="form-control" />
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            @(role == "Admin" ? "Register as Admin" : role == "Content_Creator" ? "Register as Content Creator" : "Register as Learner")
+                        </button>
+                    </form>
+
+                    <hr />
+                    <div class="text-center">
+                        <a asp-area="Identity" asp-page="/Account/Login">Already have an account? Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (role == "Admin")
+{
+    <script>
+        document.querySelector("form").addEventListener("submit", function() {
+            var code = document.getElementById("AdminCodeInput").value;
+            document.getElementById("AdminSecretCode").value = code;
+        });
+    </script>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

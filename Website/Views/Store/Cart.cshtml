@@ -1,0 +1,92 @@
+﻿@model List<Website.Models.Cart>
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="fas fa-shopping-cart"></i> Shopping Cart</h2>
+        </div>
+        <div class="card-body">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                var subtotal = item.ContentPrice * item.Quantity;
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="@(item.ContentThumbnailUrl ?? "/images/default-course.jpg")" 
+                                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 10px;">
+                                            <a asp-action="ContentDetails" asp-route-id="@item.ContentId">@item.ContentTitle</a>
+                                        </div>
+                                    </td>
+                                    <td>$@item.ContentPrice</td>
+                                    <td>
+                                        <form asp-action="UpdateCart" method="post" style="display:inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <input type="number" name="quantity" value="@item.Quantity" min="1" max="99" style="width:60px" />
+                                            <button type="submit" class="btn btn-sm btn-secondary">Update</button>
+                                        </form>
+                                    </td>
+                                    <td>$@subtotal</td>
+                                    <td>
+                                        <form asp-action="RemoveFromCart" method="post" style="display:inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                        </form>
+                                    </td>
+                                 </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-active">
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td><strong>$@Model.Sum(c => c.ContentPrice * c.Quantity)</strong></td>
+                                <td></td>
+                             </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="text-end mt-3">
+                    <a asp-action="Index" class="btn btn-secondary">Continue Shopping</a>
+                    <a asp-action="Checkout" class="btn btn-success">Proceed to Checkout</a>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-shopping-cart fa-4x text-muted"></i>
+                    <h4>Your cart is empty</h4>
+                    <a asp-action="Index" class="btn btn-primary">Browse Store</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>` 
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+}

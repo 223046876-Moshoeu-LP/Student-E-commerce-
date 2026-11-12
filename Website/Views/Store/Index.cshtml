@@ -1,0 +1,282 @@
+﻿@model List<Website.Models.Content>
+@{
+    ViewData["Title"] = "Digital Store";
+    var promotions = ViewBag.Promotions as List<Website.Models.Promotion> ?? new List<Website.Models.Promotion>();
+}
+
+<div class="container mt-4">
+
+    <!-- ==================== PROMOTIONS CAROUSEL ==================== -->
+    @if (promotions.Any())
+    {
+        <div class="row mb-5">
+            <div class="col-md-12">
+                <h2><i class="fas fa-tag text-warning"></i> Special Promotions</h2>
+                <hr />
+            </div>
+        </div>
+
+        <div id="promotionsCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                @for (int i = 0; i < promotions.Count(); i++)
+                {
+                    <button type="button" data-bs-target="#promotionsCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")"></button>
+                }
+            </div>
+            <div class="carousel-inner">
+                @foreach (var promo in promotions.Select((value, index) => new { value, index }))
+                {
+                    <div class="carousel-item @(promo.index == 0 ? "active" : "")">
+                        <div class="card border-warning promotion-card" style="cursor: pointer;" onclick="location.href='/Store/PromotionDetails/@promo.value.Id'">
+                            <div class="row g-0">
+                                <div class="col-md-5">
+                                    <img src="@(promo.value.ImageUrl ?? "/images/default-promo.jpg")"
+                                         class="img-fluid rounded-start" alt="@promo.value.Title"
+                                         style="height: 250px; width: 100%; object-fit: cover;"
+                                         onerror="this.onerror=null; this.src='/images/default-promo.jpg';">
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="card-body">
+                                        <div class="badge bg-danger mb-2">Limited Time Offer</div>
+                                        <h3 class="card-title">@promo.value.Title</h3>
+                                        <p class="card-text">@promo.value.Description</p>
+                                        @if (promo.value.DiscountPercentage.HasValue)
+                                        {
+                                            <div class="alert alert-warning d-inline-block py-2 px-3">
+                                                <strong>@promo.value.DiscountPercentage% OFF</strong>
+                                            </div>
+                                        }
+                                        <div class="text-muted small mt-2">
+                                            <i class="fas fa-calendar"></i> Valid: @promo.value.StartDate.ToString("MMM dd") - @promo.value.EndDate.ToString("MMM dd, yyyy")
+                                        </div>
+                                        <button class="btn btn-warning mt-3" onclick="event.stopPropagation(); location.href='/Store/PromotionDetails/@promo.value.Id'">
+                                            View Details →
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#promotionsCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#promotionsCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+        <!-- Carousel Pause on Hover Script -->
+        <script>
+            var carousel = document.getElementById('promotionsCarousel');
+            if (carousel) {
+                carousel.addEventListener('mouseenter', function() {
+                    var bsCarousel = bootstrap.Carousel.getInstance(carousel);
+                    if (bsCarousel) bsCarousel.pause();
+                });
+                carousel.addEventListener('mouseleave', function() {
+                    var bsCarousel = bootstrap.Carousel.getInstance(carousel);
+                    if (bsCarousel) bsCarousel.cycle();
+                });
+            }
+        </script>
+    }
+
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card text-white" style="background: linear-gradient(135deg, #008080, #006666);">
+                <div class="card-body text-center py-5">
+                    <h1 class="display-4">Digital Content Store</h1>
+                    <p class="lead">Discover amazing courses, podcasts, and resources from expert creators</p>
+                    <div class="d-flex justify-content-center mt-4">
+                        <div class="input-group w-50">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search content...">
+                            <button class="btn btn-warning" onclick="searchContent()">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Content Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="fas fa-star text-warning"></i> Featured Content</h2>
+            <hr />
+        </div>
+    </div>
+
+    <div class="row" id="featuredContent">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model.Take(3))
+            {
+                <div class="col-md-4 mb-4 content-card" data-category="@item.Category">
+                    <div class="card h-100 shadow-sm">
+                        <div class="position-relative">
+                            <img src="@(item.ThumbnailUrl ?? "https://placehold.co/400x200/008080/white?text=" + item.Title)"
+                                 class="card-img-top" alt="@item.Title" style="height: 180px; object-fit: cover;">
+                            <span class="position-absolute top-0 end-0 badge bg-primary m-2">@item.Category</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">@item.Title</h5>
+                                <button class="btn btn-sm btn-outline-danger wishlist-btn" data-id="@item.Id" style="border-radius: 50%;">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            <p class="card-text text-muted">@(item.Description.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="h5 text-success mb-0">$@item.Price.ToString("0.00")</span>
+                                <a asp-action="ContentDetails" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- All Content Section -->
+    <div class="row mb-4 mt-5">
+        <div class="col-md-12">
+            <h2><i class="fas fa-book"></i> All Content</h2>
+            <hr />
+        </div>
+    </div>
+
+    <div class="row" id="allContent">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-3 mb-4 content-card" data-category="@item.Category">
+                    <div class="card h-100 shadow-sm">
+                        <img src="@(item.ThumbnailUrl ?? "https://placehold.co/300x150/008080/white?text=" + item.Title)"
+                             class="card-img-top" alt="@item.Title" style="height: 140px; object-fit: cover;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="card-title mb-0">@item.Title</h6>
+
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="text-success fw-bold">$@item.Price.ToString("0.00")</span>
+                                <a asp-action="ContentDetails" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-md-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle"></i> No courses available yet. Check back soon!
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function searchContent() {
+        var searchTerm = document.getElementById("searchInput").value.toLowerCase();
+        var cards = document.querySelectorAll(".content-card");
+        var found = false;
+
+        cards.forEach(function(card) {
+            var title = card.querySelector(".card-title")?.innerText.toLowerCase();
+            if (title && title.includes(searchTerm)) {
+                card.style.display = "block";
+                found = true;
+            } else {
+                card.style.display = "none";
+            }
+        });
+
+        if (!found && searchTerm !== "") {
+            alert("No content found matching '" + searchTerm + "'");
+        }
+    }
+
+    // Wishlist functionality
+    document.querySelectorAll('.wishlist-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var contentId = this.dataset.id;
+            var icon = this.querySelector('i');
+
+            try {
+                const response = await fetch('/Store/AddToWishlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: parseInt(contentId) })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    icon.style.color = '#dc3545';
+                    alert(data.message);
+                } else {
+                    if (data.message === 'Please login') {
+                        window.location.href = '/Identity/Account/Login';
+                    } else {
+                        alert(data.message);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+</script>
+
+<style>
+    .content-card {
+        transition: transform 0.3s ease;
+    }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .promotion-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+        .promotion-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+    .wishlist-btn {
+        transition: all 0.3s ease;
+    }
+
+        .wishlist-btn:hover {
+            transform: scale(1.1);
+        }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        padding: 20px;
+    }
+</style>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+}

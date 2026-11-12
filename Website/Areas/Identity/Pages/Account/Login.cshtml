@@ -1,0 +1,63 @@
+﻿@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Welcome Back";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header text-white text-center" style="background: linear-gradient(135deg, #008080, #006666);">
+                    <h2><i class="fas fa-sign-in-alt"></i> Welcome Back!</h2>
+                    <p>Sign in to continue your learning journey</p>
+                </div>
+                <div class="card-body">
+                    <form id="account" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Input.Email" class="form-label">Email Address</label>
+                            <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="name@example.com" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Input.Password" class="form-label">Password</label>
+                            <input asp-for="Input.Password" type="password" class="form-control" autocomplete="current-password" placeholder="Enter your password" />
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3 form-check">
+                            <input asp-for="Input.RememberMe" class="form-check-input" />
+                            <label asp-for="Input.RememberMe" class="form-check-label">Remember me</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                    </form>
+
+                    <hr />
+
+                    <div class="text-center">
+                        <p>Don't have an account?</p>
+                        <p>
+                            <a href="/Identity/Account/Register?role=User" class="btn btn-outline-primary btn-sm">Register as Learner</a>
+                        </p>
+                        <p>
+                            <a href="/Identity/Account/Register?role=Content_Creator" class="btn btn-outline-success btn-sm">Register as Content Creator</a>
+                        </p>
+                        <p>
+                            <a href="/Identity/Account/Register?role=Admin" class="btn btn-outline-danger btn-sm">Register as Admin</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

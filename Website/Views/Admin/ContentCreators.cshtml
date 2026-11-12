@@ -1,0 +1,140 @@
+﻿@model List<Website.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "Content Creators Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header" style="background: linear-gradient(135deg, #28a745, #20c997);">
+            <h2 class="text-white mb-0"> Content Creators Management</h2>
+        </div>
+        <div class="card-body">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Search Section -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <input type="text" id="searchInput" class="form-control" placeholder="Search by name or email..." />
+                                        <button class="btn btn-primary" onclick="searchContentCreators()">
+                                            <i class="fas fa-search"></i> Search
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-secondary" onclick="resetSearch()">
+                                        <i class="fas fa-undo"></i> Reset
+                                    </button>
+                                    <span class="text-muted ms-3" id="resultCount">@Model.Count creators found</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive" id="contentCreatorsTable">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Profile</th>
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Expertise</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="creatorsTableBody">
+                        @foreach (var user in Model)
+                        {
+                            <tr data-email="@user.Email?.ToLower()" data-name="@(user.FirstName + " " + user.LastName)?.ToLower()">
+                                <td>
+                                    <img src="@(user.ProfileImageUrl ?? "/images/default-avatar.png")"
+                                         style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                </td>
+                                <td>@user.Email</td>
+                                <td>@(user.FirstName + " " + user.LastName)</td>
+                                <td>@(string.IsNullOrEmpty(user.Expertise) ? "Not specified" : user.Expertise)</td>
+                                @(user.CreatedAt.HasValue? user.CreatedAt.Value.ToString("MMM dd, yyyy") : "N/A")
+                                <td>
+                                    <form asp-action="DeleteUser" method="post" onsubmit="return confirmDelete(this);" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                        <input type="hidden" name="returnUrl" value="ContentCreators" />
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info text-center">
+                    No content creators found.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function searchContentCreators() {
+        var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        var rows = document.querySelectorAll('#creatorsTableBody tr');
+        var visibleCount = 0;
+
+        rows.forEach(function(row) {
+            var email = row.getAttribute('data-email') || '';
+            var name = row.getAttribute('data-name') || '';
+
+            if (email.indexOf(searchTerm) > -1 || name.indexOf(searchTerm) > -1 || searchTerm === '') {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('resultCount').innerText = visibleCount + ' creators found';
+    }
+
+    function resetSearch() {
+        document.getElementById('searchInput').value = '';
+        searchContentCreators();
+    }
+
+    function confirmDelete(form) {
+        return confirm('Are you sure you want to delete this content creator? This action cannot be undone.');
+    }
+
+    // Real-time search on keyup
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        searchContentCreators();
+    });
+</script>

@@ -1,0 +1,50 @@
+﻿@model List<Website.Models.Promotion>
+@{
+    ViewData["Title"] = "Promotions Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="text-dark mb-0"><i class="fas fa-bullhorn"></i> Promotions</h2>
+                <a asp-action="CreatePromotion" class="btn btn-dark">+ Create Promotion</a>
+            </div>
+        </div>
+        <div class="card-body">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">@TempData["Success"]</div>
+            }
+
+            <div class="row">
+                @foreach (var promo in Model)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <img src="@(promo.ImageUrl ?? "/images/default-promo.jpg")" class="card-img-top" style="height: 150px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">@promo.Title</h5>
+                                <p class="card-text">@promo.Description</p>
+                                <p><strong>Valid:</strong> @promo.StartDate.ToString("MMM dd") - @promo.EndDate.ToString("MMM dd, yyyy")</p>
+                                @if (promo.DiscountPercentage.HasValue)
+                                {
+                                    <span class="badge bg-success">@promo.DiscountPercentage% OFF</span>
+                                }
+                            </div>
+                            <div class="card-footer">
+                                <form asp-action="DeletePromotion" method="post" onsubmit="return confirm('Delete this promotion?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@promo.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm w-100">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

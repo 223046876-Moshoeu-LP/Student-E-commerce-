@@ -1,0 +1,43 @@
+﻿@model List<Website.Models.ApplicationUser>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Profile</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="@(user.ProfileImageUrl ?? "/images/default-avatar.png")"
+                             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    </td>
+                    <td>@user.Email</td>
+                    <td>@user.FirstName @user.LastName</td>
+                    <td>@user.CreatedAt?.ToString("MMM dd, yyyy")</td>
+                    <td>
+                        <form asp-action="DeleteUser" method="post" onsubmit="return confirm('Delete this user?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@user.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle"></i> No users found.
+    </div>
+}
